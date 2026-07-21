@@ -1,7 +1,7 @@
 package data
 
 type Database struct {
-	Tables map[string]Table
+	Tables map[string]*Table
 }
 
 type Table struct {

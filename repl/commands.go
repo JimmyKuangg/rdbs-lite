@@ -21,17 +21,28 @@ func ParseCommand(input string) (Command, error) {
 	}, nil
 }
 
-func ExecuteCommand(db *data.Database, cmd Command) error {
+func ExecuteCommand(db *data.Database, cmd Command) (string, error) {
 	switch cmd.Name {
 
 	case "CREATE":
 		if len(cmd.Args) < 2 {
-			return errors.New("CREATE requires more arguments")
+			return "", errors.New("CREATE requires more arguments")
 		}
 
-	default:
-		return errors.New("unknown command")
-	}
+		cmd.Args[0] = strings.ToUpper(cmd.Args[0])
 
-	return nil
+		if cmd.Args[0] != "TABLE" {
+			return "", errors.New("CREATE only supports TABLE currently")
+		}
+
+		err := db.CreateTable(cmd.Args[1])
+		if err != nil {
+			return "", err
+		}
+
+		return "OK", nil
+
+	default:
+		return "", errors.New("unknown command")
+	}
 }

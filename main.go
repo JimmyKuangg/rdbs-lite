@@ -25,9 +25,12 @@ func main() {
 			continue
 		}
 
-		if err = repl.ExecuteCommand(&db, command); err != nil {
+		resp, err := repl.ExecuteCommand(&db, command)
+		if err != nil {
 			fmt.Println(err)
 		}
+
+		fmt.Println(resp)
 	}
 
 	if err := reader.Err(); err != nil {

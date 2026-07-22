@@ -2,36 +2,33 @@ package repl
 
 import (
 	"errors"
+	"rdbslite/commands"
 	"rdbslite/data"
 	"strings"
 )
 
-func ParseCommand(input string) (Command, error) {
+func ParseCommand(input string) (commands.Command, error) {
 	fields := strings.Fields(input)
 
 	if len(fields) == 0 {
-		return Command{}, errors.New("empty command")
+		return commands.Command{}, errors.New("empty command")
 	}
 
 	command := strings.ToUpper(fields[0])
 
-	return Command{
+	return commands.Command{
 		Name: command,
 		Args: fields[1:],
 	}, nil
 }
 
-func ExecuteCommand(db *data.Database, cmd Command) error {
+func ExecuteCommand(db *data.Database, cmd commands.Command) (string, error) {
 	switch cmd.Name {
 
 	case "CREATE":
-		if len(cmd.Args) < 2 {
-			return errors.New("CREATE requires more arguments")
-		}
+		return commands.Create(db, cmd)
 
 	default:
-		return errors.New("unknown command")
+		return "", errors.New("unknown command")
 	}
-
-	return nil
 }

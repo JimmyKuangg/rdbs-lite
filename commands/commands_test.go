@@ -35,6 +35,14 @@ func TestCreate(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "rejects empty table name",
+			cmd: Command{
+				Name: "CREATE",
+				Args: []string{"Table", " ", "id", "int"},
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {

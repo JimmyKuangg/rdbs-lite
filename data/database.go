@@ -6,16 +6,21 @@ import (
 )
 
 func (db *Database) CreateTable(name string, schema []Column) error {
-	if _, exists := db.Tables[strings.ToLower(name)]; exists {
+	trimmed := strings.TrimSpace(name)
+	if trimmed == "" {
+		return errors.New("table name cannot be empty")
+	}
+
+	key := strings.ToLower(trimmed)
+	if _, exists := db.Tables[key]; exists {
 		return errors.New("table already exists")
 	}
 
 	t := &Table{
-		Name:   name,
+		Name:   trimmed,
 		Schema: schema,
 	}
 
-	db.Tables[name] = t
-
+	db.Tables[key] = t
 	return nil
 }

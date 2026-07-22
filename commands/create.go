@@ -2,6 +2,7 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"rdbslite/data"
 	"strings"
 )
@@ -11,9 +12,9 @@ func Create(db *data.Database, cmd Command) (string, error) {
 		return "", errors.New("CREATE requires more arguments")
 	}
 
-	cmd.Args[0] = strings.ToUpper(cmd.Args[0])
+	createSubj := strings.ToUpper(cmd.Args[0])
 
-	if cmd.Args[0] != "TABLE" {
+	if createSubj != "TABLE" {
 		return "", errors.New("CREATE only supports TABLE currently")
 	}
 
@@ -24,11 +25,32 @@ func Create(db *data.Database, cmd Command) (string, error) {
 	}
 
 	columns := []data.Column{}
+	seen := map[string]struct{}{}
 
 	for i := 0; i < len(schemaArgs); i += 2 {
+		columnName := strings.TrimSpace(schemaArgs[i])
+		if columnName == "" {
+			return "", errors.New("column name cannot be empty")
+		}
+
+		if data.IsReservedIdentifier(columnName) {
+			return "", fmt.Errorf("can not use name %q as a column name: reserved keyword", columnName)
+		}
+
+		key := strings.ToLower(columnName)
+		if _, exists := seen[key]; exists {
+			return "", fmt.Errorf("duplicate column name: %q", columnName)
+		}
+		seen[key] = struct{}{}
+
+		columnType, err := data.ParseColumnType(schemaArgs[i+1])
+		if err != nil {
+			return "", err
+		}
+
 		columns = append(columns, data.Column{
-			Name: schemaArgs[i],
-			Type: schemaArgs[i+1],
+			Name: columnName,
+			Type: columnType,
 		})
 	}
 

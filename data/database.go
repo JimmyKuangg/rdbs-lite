@@ -2,6 +2,7 @@ package data
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -14,6 +15,10 @@ func (db *Database) CreateTable(name string, schema []Column) error {
 	key := strings.ToLower(trimmed)
 	if _, exists := db.Tables[key]; exists {
 		return errors.New("table already exists")
+	}
+
+	if IsReservedIdentifier(trimmed) {
+		return fmt.Errorf("can not use name %v as a table name: reserved keyword", trimmed)
 	}
 
 	t := &Table{

@@ -43,6 +43,54 @@ func TestCreate(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "rejects reserved keyword for table names",
+			cmd: Command{
+				Name: "CREATE",
+				Args: []string{"Table", "int", "id", "int"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "rejects reserved keyword for column names",
+			cmd: Command{
+				Name: "CREATE",
+				Args: []string{"Table", "users", "int", "int"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "rejects empty columns",
+			cmd: Command{
+				Name: "CREATE",
+				Args: []string{"Table", "users", "", "int"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "rejects empty columns with whitespace",
+			cmd: Command{
+				Name: "CREATE",
+				Args: []string{"Table", "users", " ", "int"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "rejects duplicate names for columns",
+			cmd: Command{
+				Name: "CREATE",
+				Args: []string{"Table", "users", "id", "int", "id", "int"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "rejects duplicate names for columns with case insensitivity",
+			cmd: Command{
+				Name: "CREATE",
+				Args: []string{"Table", "users", "id", "int", "ID", "int"},
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {

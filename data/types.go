@@ -11,5 +11,5 @@ type Table struct {
 
 type Column struct {
 	Name string
-	Type any
+	Type ColumnType
 }

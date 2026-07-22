@@ -17,11 +17,22 @@ func Create(db *data.Database, cmd Command) (string, error) {
 		return "", errors.New("CREATE only supports TABLE currently")
 	}
 
-	if len(cmd.Args)%2 != 0 {
+	schemaArgs := cmd.Args[2:]
+
+	if len(schemaArgs)%2 != 0 || len(schemaArgs) == 0 {
 		return "", errors.New("invalid schema")
 	}
 
-	err := db.CreateTable(cmd.Args[1])
+	columns := []data.Column{}
+
+	for i := 0; i < len(schemaArgs); i += 2 {
+		columns = append(columns, data.Column{
+			Name: schemaArgs[i],
+			Type: schemaArgs[i+1],
+		})
+	}
+
+	err := db.CreateTable(cmd.Args[1], columns)
 	if err != nil {
 		return "", err
 	}

@@ -25,7 +25,7 @@ func Create(db *data.Database, cmd Command) (string, error) {
 	}
 
 	columns := []data.Column{}
-	seen := map[string]struct{}{}
+	seen := make(map[string]bool)
 
 	for i := 0; i < len(schemaArgs); i += 2 {
 		columnName := strings.TrimSpace(schemaArgs[i])
@@ -41,7 +41,7 @@ func Create(db *data.Database, cmd Command) (string, error) {
 		if _, exists := seen[key]; exists {
 			return "", fmt.Errorf("duplicate column name: %q", columnName)
 		}
-		seen[key] = struct{}{}
+		seen[key] = true
 
 		columnType, err := data.ParseColumnType(schemaArgs[i+1])
 		if err != nil {

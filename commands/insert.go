@@ -28,31 +28,30 @@ func Insert(db *data.Database, cmd Command) (string, error) {
 	}
 
 	table := db.Tables[tableName]
-	tableCols := make(map[string]data.ColumnType)
 	seenCols := make(map[string]bool)
-
-	for _, col := range table.Schema {
-		tableCols[col.Name] = col.Type
-	}
+	newRow := make([]any, len(table.Schema))
 
 	for i := 0; i < len(insertArgs); i += 2 {
 		col := strings.ToLower(insertArgs[i])
 		val := insertArgs[i+1]
 
-		colType, exists := tableCols[col]
-		if !exists {
-			return "", fmt.Errorf("column does not exist: '%v'", col)
-		}
-
-		_, err := data.ParseValue(val, colType)
-		if err != nil {
-			return "", fmt.Errorf("invalid typing for INSERT: column: '%v', value: '%v'", col, val)
-		}
-
 		if seenCols[col] {
 			return "", fmt.Errorf("invalid INSERT syntax: can not use the same column: '%v'", col)
 		}
 		seenCols[col] = true
+
+		index, exists := table.ColumnIndex[col]
+		if !exists {
+			return "", fmt.Errorf("column does not exist: '%v'", col)
+		}
+
+		colType := table.Schema[index].Type
+		res, err := data.ParseValue(val, colType)
+		if err != nil {
+			return "", fmt.Errorf("invalid typing for INSERT: column: '%v', value: '%v'", col, val)
+		}
+
+		newRow[index] = res
 	}
 
 	return "OK", nil

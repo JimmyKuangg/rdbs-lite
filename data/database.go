@@ -22,10 +22,22 @@ func (db *Database) CreateTable(name string, schema []Column) error {
 	}
 
 	t := &Table{
-		Name:   trimmed,
-		Schema: schema,
+		Name:        trimmed,
+		Schema:      schema,
+		ColumnIndex: make(map[string]int),
+	}
+
+	for i, col := range schema {
+		t.ColumnIndex[strings.ToLower(col.Name)] = i
 	}
 
 	db.Tables[key] = t
+	return nil
+}
+
+func (db *Database) Insert(tableName string, row []any) error {
+	table := db.Tables[tableName]
+	stored := append([]any(nil), row...)
+	table.Rows = append(table.Rows, Row{Values: stored})
 	return nil
 }

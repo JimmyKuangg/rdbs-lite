@@ -28,6 +28,9 @@ func ExecuteCommand(db *data.Database, cmd commands.Command) (string, error) {
 	case "CREATE":
 		return commands.Create(db, cmd)
 
+	case "INSERT":
+		return commands.Insert(db, cmd)
+
 	case "PRINT":
 		return commands.Print(db, cmd)
 

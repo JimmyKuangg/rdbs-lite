@@ -1,7 +1,9 @@
 package data
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -48,4 +50,20 @@ func IsReservedIdentifier(name string) bool {
 	// Type names are also reserved for identifiers
 	_, err := ParseColumnType(n)
 	return err == nil
+}
+
+func ParseValue(input string, columnType ColumnType) (any, error) {
+	switch columnType {
+	case IntType:
+		return strconv.Atoi(input)
+
+	case TextType:
+		return input, nil
+
+	case BoolType:
+		return strconv.ParseBool(input)
+
+	default:
+		return nil, errors.New("unsupported type")
+	}
 }

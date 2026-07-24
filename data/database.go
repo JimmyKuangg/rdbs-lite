@@ -35,7 +35,9 @@ func (db *Database) CreateTable(name string, schema []Column) error {
 	return nil
 }
 
-func (db *Database) Insert(args []string) error {
-
+func (db *Database) Insert(tableName string, row []any) error {
+	table := db.Tables[tableName]
+	stored := append([]any(nil), row...)
+	table.Rows = append(table.Rows, Row{Values: stored})
 	return nil
 }

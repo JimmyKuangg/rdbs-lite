@@ -54,5 +54,6 @@ func Insert(db *data.Database, cmd Command) (string, error) {
 		newRow[index] = res
 	}
 
+	db.Insert(tableName, newRow)
 	return "OK", nil
 }

@@ -5,12 +5,14 @@ import (
 	"testing"
 )
 
+type TestCases struct {
+	name    string
+	cmd     Command
+	wantErr bool
+}
+
 func TestCreate(t *testing.T) {
-	tests := []struct {
-		name    string
-		cmd     Command
-		wantErr bool
-	}{
+	tests := []TestCases{
 		{
 			name: "creates table",
 			cmd: Command{

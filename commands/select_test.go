@@ -133,6 +133,14 @@ func TestSelect(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "rejects multiple column names",
+			cmd: Command{
+				Name: "SELECT",
+				Args: []string{"id", "id", "FROM", "users"},
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {

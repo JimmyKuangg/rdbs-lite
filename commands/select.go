@@ -59,8 +59,15 @@ func resolveProjection(table *data.Table, columns []string) ([]string, error) {
 	}
 
 	resolved := make([]string, len(columns))
+	seen := make(map[string]bool)
+
 	for i, name := range columns {
 		col := strings.ToLower(name)
+		if seen[col] {
+			return nil, fmt.Errorf("can not use duplicate column names in SELECT")
+		}
+		seen[col] = true
+
 		if _, exists := table.ColumnIndex[col]; !exists {
 			return nil, fmt.Errorf("column name does not exist in %s table", table.Name)
 		}

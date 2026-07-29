@@ -3,8 +3,9 @@ package commands
 import (
 	"errors"
 	"fmt"
-	"rdbslite/data"
 	"strings"
+
+	"rdbslite/data"
 )
 
 func Select(db *data.Database, cmd Command) (string, error) {

@@ -1,8 +1,9 @@
 package commands
 
 import (
-	"rdbslite/data"
 	"testing"
+
+	"rdbslite/data"
 )
 
 func TestInsert(t *testing.T) {

@@ -2,8 +2,9 @@ package commands
 
 import (
 	"fmt"
-	"rdbslite/data"
 	"strings"
+
+	"rdbslite/data"
 )
 
 func Print(db *data.Database, cmd Command) (string, error) {

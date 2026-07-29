@@ -2,9 +2,10 @@ package repl
 
 import (
 	"errors"
+	"strings"
+
 	"rdbslite/commands"
 	"rdbslite/data"
-	"strings"
 )
 
 func ParseCommand(input string) (commands.Command, error) {

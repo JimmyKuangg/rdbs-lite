@@ -109,12 +109,15 @@ func buildBorder(widths []int) string {
 
 func writeRow(out *strings.Builder, cells []string, widths []int) {
 	out.WriteString("|")
+
 	for i, w := range widths {
 		cell := ""
 		if i < len(cells) {
 			cell = cells[i]
 		}
-		out.WriteString(fmt.Sprintf(" %-*s |", w, cell))
+
+		fmt.Fprintf(out, " %-*s |", w, cell)
 	}
+
 	out.WriteString("\n")
 }

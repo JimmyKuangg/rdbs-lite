@@ -55,6 +55,10 @@ func Insert(db *data.Database, cmd Command) (string, error) {
 		newRow[index] = res
 	}
 
-	db.Insert(tableName, newRow)
+	err := db.Insert(tableName, newRow)
+	if err != nil {
+		return "", fmt.Errorf("error during table insert: %w", err)
+	}
+
 	return "OK", nil
 }

@@ -18,6 +18,9 @@ const (
 var reservedIdentifiers = map[string]struct{}{
 	"CREATE": {},
 	"TABLE":  {},
+	"FROM":   {},
+	"WHERE":  {},
+	"SELECT": {},
 }
 
 func normalizeIdent(s string) string {
@@ -66,4 +69,30 @@ func ParseValue(input string, columnType ColumnType) (any, error) {
 	default:
 		return nil, errors.New("unsupported type")
 	}
+}
+
+func compareValues(left any, op string, right any) bool {
+	switch op {
+	case "=":
+		return left == right
+	case "<":
+		switch a := left.(type) {
+		case int:
+			b := right.(int)
+			return a < b
+		case string:
+			b := right.(string)
+			return a < b
+		}
+	case ">":
+		switch a := left.(type) {
+		case int:
+			b := right.(int)
+			return a > b
+		case string:
+			b := right.(string)
+			return a > b
+		}
+	}
+	return false
 }

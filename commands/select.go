@@ -48,8 +48,9 @@ func Select(db *data.Database, cmd Command) (string, error) {
 	}
 
 	columns := cmd.Args[:fromKeywordIdx]
+	var whereArgs []string
 
-	resolvedCols, err := resolveProjection(table, columns)
+	resolvedCols, err := resolveColumns(table, columns)
 	if err != nil {
 		return "", err
 	}
@@ -60,14 +61,25 @@ func Select(db *data.Database, cmd Command) (string, error) {
 		if err != nil {
 			return "", err
 		}
+
+		whereArgs = whereWords
 	}
 
-	return renderTable(table, resolvedCols), nil
+	rows, err := db.Select(*table, resolvedCols, whereArgs)
+	if err != nil {
+		return "", err
+	}
+
+	return renderRows(resolvedCols, rows), nil
 }
 
-func resolveProjection(table *data.Table, columns []string) ([]string, error) {
+func resolveColumns(table *data.Table, columns []string) ([]string, error) {
 	if len(columns) == 1 && columns[0] == "*" {
-		return []string{"*"}, nil
+		resolved := make([]string, len(table.Schema))
+		for i, col := range table.Schema {
+			resolved[i] = strings.ToLower(col.Name)
+		}
+		return resolved, nil
 	}
 
 	resolved := make([]string, len(columns))

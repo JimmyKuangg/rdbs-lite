@@ -41,3 +41,41 @@ func (db *Database) Insert(tableName string, row []any) error {
 	table.Rows = append(table.Rows, Row{Values: stored})
 	return nil
 }
+
+func (db *Database) Select(table Table, selectedCols []string, where []string) ([][]any, error) {
+	results := make([][]any, 0)
+
+	if len(where) == 0 {
+		for _, row := range table.Rows {
+			projected := make([]any, 0, len(selectedCols))
+			for _, col := range selectedCols {
+				idx := table.ColumnIndex[strings.ToLower(col)]
+				projected = append(projected, row.Values[idx])
+			}
+			results = append(results, projected)
+		}
+		return results, nil
+	}
+
+	whereTargetIdx := table.ColumnIndex[strings.ToLower(where[0])]
+	whereTargetType := table.Schema[whereTargetIdx].Type
+
+	target, err := ParseValue(where[2], whereTargetType)
+	if err != nil {
+		return nil, fmt.Errorf("error during SELECT: %w", err)
+	}
+
+	for _, row := range table.Rows {
+		rowTarget := row.Values[whereTargetIdx]
+		if compareValues(rowTarget, where[1], target) {
+			projected := make([]any, 0, len(selectedCols))
+			for _, col := range selectedCols {
+				idx := table.ColumnIndex[strings.ToLower(col)]
+				projected = append(projected, row.Values[idx])
+			}
+			results = append(results, projected)
+		}
+	}
+
+	return results, nil
+}

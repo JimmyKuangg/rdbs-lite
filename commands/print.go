@@ -121,3 +121,36 @@ func writeRow(out *strings.Builder, cells []string, widths []int) {
 
 	out.WriteString("\n")
 }
+
+func renderRows(headers []string, rows [][]any) string {
+	widths := make([]int, len(headers))
+	for i, h := range headers {
+		widths[i] = len(h)
+	}
+	for _, r := range rows {
+		for i, v := range r {
+			if cell := fmt.Sprint(v); len(cell) > widths[i] {
+				widths[i] = len(cell)
+			}
+		}
+	}
+
+	border := buildBorder(widths)
+	var out strings.Builder
+	out.WriteString(border)
+	out.WriteString("\n")
+	writeRow(&out, headers, widths)
+	out.WriteString(border)
+	out.WriteString("\n")
+
+	for _, r := range rows {
+		cells := make([]string, len(r))
+		for i, v := range r {
+			cells[i] = fmt.Sprint(v)
+		}
+		writeRow(&out, cells, widths)
+	}
+
+	out.WriteString(border)
+	return out.String()
+}

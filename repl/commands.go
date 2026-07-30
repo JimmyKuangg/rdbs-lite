@@ -2,9 +2,10 @@ package repl
 
 import (
 	"errors"
+	"strings"
+
 	"rdbslite/commands"
 	"rdbslite/data"
-	"strings"
 )
 
 func ParseCommand(input string) (commands.Command, error) {
@@ -33,6 +34,9 @@ func ExecuteCommand(db *data.Database, cmd commands.Command) (string, error) {
 
 	case "PRINT":
 		return commands.Print(db, cmd)
+
+	case "SELECT":
+		return commands.Select(db, cmd)
 
 	default:
 		return "", errors.New("unknown command")

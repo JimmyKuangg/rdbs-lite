@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
+
 	"rdbslite/data"
 	"rdbslite/repl"
-	"strings"
 )
 
 func main() {

@@ -13,14 +13,8 @@ func Select(db *data.Database, cmd Command) (string, error) {
 		return "", errors.New("SELECT requires more arguments")
 	}
 
-	fromKeywordIdx := -1
-
-	for i := range cmd.Args {
-		if strings.ToUpper(cmd.Args[i]) == "FROM" {
-			fromKeywordIdx = i
-			break
-		}
-	}
+	fromKeywordIdx := parseClause(cmd, "FROM")
+	whereKeywordIdx := parseClause(cmd, "WHERE")
 
 	if fromKeywordIdx == -1 {
 		return "", errors.New("keyword FROM required in SELECT statement")
@@ -34,8 +28,17 @@ func Select(db *data.Database, cmd Command) (string, error) {
 		return "", errors.New("missing table name after FROM")
 	}
 
-	if fromKeywordIdx+2 != len(cmd.Args) {
-		return "", errors.New("unexpected tokens after table name")
+	if whereKeywordIdx == -1 {
+		if fromKeywordIdx+2 != len(cmd.Args) {
+			return "", errors.New("unexpected tokens after table name")
+		}
+	} else {
+		if fromKeywordIdx+2 != whereKeywordIdx {
+			return "", errors.New("unexpected tokens before WHERE")
+		}
+		if whereKeywordIdx+1 >= len(cmd.Args) {
+			return "", errors.New("missing condition after WHERE")
+		}
 	}
 
 	tableName := strings.ToLower(cmd.Args[fromKeywordIdx+1])
@@ -76,4 +79,38 @@ func resolveProjection(table *data.Table, columns []string) ([]string, error) {
 	}
 
 	return resolved, nil
+}
+
+func resolveWhereTokens(table *data.Table, args []string) error {
+	if len(args) != 3 {
+		return fmt.Errorf("not enough args after WHERE clause")
+	}
+
+	colName := strings.ToLower(args[0])
+	if _, exists := table.ColumnIndex[colName]; !exists {
+		return fmt.Errorf("column name %s does not exist in table %s", args[0], table.Name)
+	}
+
+	op := args[1]
+	switch op {
+	case "=", "<", ">", "<=", ">=":
+		// valid operator
+	default:
+		return fmt.Errorf("unsupported operator %s", op)
+	}
+
+	return nil
+}
+
+func parseClause(cmd Command, clause string) int {
+	idx := -1
+
+	for i, arg := range cmd.Args {
+		if strings.EqualFold(arg, clause) {
+			idx = i
+			break
+		}
+	}
+
+	return idx
 }

@@ -141,6 +141,30 @@ func TestSelect(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "accepts WHERE clauses",
+			cmd: Command{
+				Name: "SELECT",
+				Args: []string{"id", "FROM", "users", "WHERE", "name", "=", "bob"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "rejects unexpected tokens after FROM when WHERE clause is present",
+			cmd: Command{
+				Name: "SELECT",
+				Args: []string{"id", "FROM", "users", "test", "WHERE", "name", "=", "bob"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "rejects missing tokens after WHERE clause",
+			cmd: Command{
+				Name: "SELECT",
+				Args: []string{"id", "FROM", "users", "WHERE"},
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -178,5 +202,42 @@ func TestSelect_ProjectionOutput(t *testing.T) {
 	// Basic sanity that row values are present.
 	if !strings.Contains(out, "alice") || !strings.Contains(out, "bob") {
 		t.Fatalf("[%s] expected output to include selected row values, got:\n%s", t.Name(), out)
+	}
+}
+
+func TestParseClause(t *testing.T) {
+	tests := []struct {
+		name   string
+		clause string
+		want   int
+	}{
+		{
+			name:   "finds FROM clause",
+			clause: "FROM",
+			want:   1,
+		},
+		{
+			name:   "finds WHERE clause case-insensitively",
+			clause: "where",
+			want:   3,
+		},
+		{
+			name:   "returns -1 when clause is missing",
+			clause: "GROUP BY",
+			want:   -1,
+		},
+	}
+
+	cmd := Command{
+		Name: "SELECT",
+		Args: []string{"id", "FROM", "users", "where", "name", "=", "bob"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := parseClause(cmd, tt.clause); got != tt.want {
+				t.Fatalf("parseClause(%q) = %d, want %d", tt.clause, got, tt.want)
+			}
+		})
 	}
 }

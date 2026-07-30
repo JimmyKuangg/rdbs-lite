@@ -54,6 +54,14 @@ func Select(db *data.Database, cmd Command) (string, error) {
 		return "", err
 	}
 
+	if whereKeywordIdx != -1 {
+		whereWords := cmd.Args[whereKeywordIdx+1:]
+		err = resolveWhereTokens(table, whereWords)
+		if err != nil {
+			return "", err
+		}
+	}
+
 	return renderTable(table, resolvedCols), nil
 }
 

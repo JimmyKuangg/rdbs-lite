@@ -3,6 +3,8 @@ package data
 import (
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -78,4 +80,24 @@ func (db *Database) Select(table Table, selectedCols []string, where []string) (
 	}
 
 	return results, nil
+}
+
+func (db *Database) Save() error {
+	path := filepath.Join(storagePath, dbFile)
+	file, err := os.OpenFile(
+		path,
+		os.O_CREATE|os.O_RDWR,
+		0o644,
+	)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Println("Writing database to disk...")
+	for name, table := range db.Tables {
+		_, err = file.WriteString(name + " " + table.Name)
+	}
+
+	return nil
 }

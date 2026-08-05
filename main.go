@@ -12,6 +12,10 @@ import (
 )
 
 func main() {
+	if err := data.Init(); err != nil {
+		log.Fatal(err)
+	}
+
 	db := data.NewDatabase()
 	reader := bufio.NewScanner(os.Stdin)
 

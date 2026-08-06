@@ -39,8 +39,7 @@ func ExecuteCommand(db *data.Database, cmd commands.Command) (string, error) {
 		return commands.Select(db, cmd)
 
 	case "SAVE":
-		db.Save()
-		return "", nil
+		return commands.Save(db)
 
 	default:
 		return "", errors.New("unknown command")

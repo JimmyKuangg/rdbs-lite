@@ -102,24 +102,24 @@ func (db *Database) Save() error {
 	for _, table := range db.Tables {
 		_, err = file.WriteString("TABLE " + table.Name + "\n")
 		if err != nil {
-			fmt.Println(err)
+			return err
 		}
 
 		_, err := file.WriteString("SCHEMA\n")
 		if err != nil {
-			fmt.Println(err)
+			return err
 		}
 
 		for _, column := range table.Schema {
 			_, err = file.WriteString(string(column.Type) + " " + column.Name + "\n")
 			if err != nil {
-				fmt.Println(err)
+				return err
 			}
 		}
 
 		_, err = file.WriteString("ROWS\n")
 		if err != nil {
-			fmt.Println(err)
+			return err
 		}
 
 		for _, row := range table.Rows {
@@ -129,13 +129,13 @@ func (db *Database) Save() error {
 				valStr := fmt.Sprintf("%v", val)
 				_, err := rowStr.WriteString(valStr + " ")
 				if err != nil {
-					fmt.Println(err)
+					return err
 				}
 			}
 
 			_, err = file.WriteString(rowStr.String() + "\n")
 			if err != nil {
-				fmt.Println(err)
+				return err
 			}
 		}
 	}

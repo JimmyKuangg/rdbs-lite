@@ -86,7 +86,7 @@ func (db *Database) Save() error {
 	path := filepath.Join(storagePath, dbFile)
 	file, err := os.OpenFile(
 		path,
-		os.O_CREATE|os.O_RDWR,
+		os.O_CREATE|os.O_RDWR|os.O_TRUNC,
 		0o644,
 	)
 	if err != nil {
@@ -94,9 +94,50 @@ func (db *Database) Save() error {
 		return err
 	}
 
+	defer func() {
+		_ = file.Close()
+	}()
+
 	fmt.Println("Writing database to disk...")
-	for name, table := range db.Tables {
-		_, err = file.WriteString(name + " " + table.Name)
+	for _, table := range db.Tables {
+		_, err = file.WriteString("TABLE " + table.Name + "\n")
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		_, err := file.WriteString("SCHEMA\n")
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		for _, column := range table.Schema {
+			_, err = file.WriteString(string(column.Type) + " " + column.Name + "\n")
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+
+		_, err = file.WriteString("ROWS\n")
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		for _, row := range table.Rows {
+			var rowStr strings.Builder
+
+			for _, val := range row.Values {
+				valStr := fmt.Sprintf("%v", val)
+				_, err := rowStr.WriteString(valStr + " ")
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+
+			_, err = file.WriteString(rowStr.String() + "\n")
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
 	}
 
 	return nil

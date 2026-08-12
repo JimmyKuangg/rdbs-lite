@@ -3,8 +3,6 @@ package data
 import (
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -80,65 +78,4 @@ func (db *Database) Select(table Table, selectedCols []string, where []string) (
 	}
 
 	return results, nil
-}
-
-func (db *Database) Save() error {
-	path := filepath.Join(storagePath, dbFile)
-	file, err := os.OpenFile(
-		path,
-		os.O_CREATE|os.O_RDWR|os.O_TRUNC,
-		0o644,
-	)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	defer func() {
-		_ = file.Close()
-	}()
-
-	fmt.Println("Writing database to disk...")
-	for _, table := range db.Tables {
-		_, err = file.WriteString("TABLE " + table.Name + "\n")
-		if err != nil {
-			return err
-		}
-
-		_, err := file.WriteString("SCHEMA\n")
-		if err != nil {
-			return err
-		}
-
-		for _, column := range table.Schema {
-			_, err = file.WriteString(string(column.Type) + " " + column.Name + "\n")
-			if err != nil {
-				return err
-			}
-		}
-
-		_, err = file.WriteString("ROWS\n")
-		if err != nil {
-			return err
-		}
-
-		for _, row := range table.Rows {
-			var rowStr strings.Builder
-
-			for _, val := range row.Values {
-				valStr := fmt.Sprintf("%v", val)
-				_, err := rowStr.WriteString(valStr + " ")
-				if err != nil {
-					return err
-				}
-			}
-
-			_, err = file.WriteString(rowStr.String() + "\n")
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }

@@ -17,6 +17,9 @@ func main() {
 	}
 
 	db := data.NewDatabase()
+	if err := db.Load(); err != nil {
+		log.Fatalf("error loading database: %v", err)
+	}
 	reader := bufio.NewScanner(os.Stdin)
 
 	fmt.Println("RDBSLite started")

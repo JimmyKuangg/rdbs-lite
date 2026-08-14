@@ -3,6 +3,7 @@ package data
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -95,4 +96,8 @@ func compareValues(left any, op string, right any) bool {
 		}
 	}
 	return false
+}
+
+func AOFPath() string {
+	return filepath.Join(storagePath, aofFile)
 }

@@ -25,12 +25,33 @@ func ParseCommand(input string) (commands.Command, error) {
 
 func ExecuteCommand(db *data.Database, cmd commands.Command) (string, error) {
 	switch cmd.Name {
-
 	case "CREATE":
-		return commands.Create(db, cmd)
+		resp, err := commands.Create(db, cmd)
+		if err != nil {
+			return "", err
+		}
+
+		cmdString := cmd.ToString()
+		err = AppendAOF(cmdString)
+		if err != nil {
+			return "", err
+		}
+
+		return resp, err
 
 	case "INSERT":
-		return commands.Insert(db, cmd)
+		resp, err := commands.Insert(db, cmd)
+		if err != nil {
+			return "", err
+		}
+
+		cmdString := cmd.ToString()
+		err = AppendAOF(cmdString)
+		if err != nil {
+			return "", err
+		}
+
+		return resp, err
 
 	case "PRINT":
 		return commands.Print(db, cmd)

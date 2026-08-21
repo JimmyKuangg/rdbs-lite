@@ -47,7 +47,8 @@ func renderTable(table *data.Table, cols []string) string {
 		writeRow(&out, cells, widths)
 	}
 
-	out.WriteString(border)
+	lowerBorder := border + "\n"
+	out.WriteString(lowerBorder)
 	return out.String()
 }
 

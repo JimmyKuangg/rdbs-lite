@@ -25,12 +25,25 @@ func ParseCommand(input string) (commands.Command, error) {
 
 func ExecuteCommand(db *data.Database, cmd commands.Command) (string, error) {
 	switch cmd.Name {
-
 	case "CREATE":
-		return commands.Create(db, cmd)
+		resp, err := commands.Create(db, cmd)
+		if err != nil {
+			return "", err
+		}
+		if err := persistCommand(db, cmd); err != nil {
+			return "", err
+		}
+		return resp, nil
 
 	case "INSERT":
-		return commands.Insert(db, cmd)
+		resp, err := commands.Insert(db, cmd)
+		if err != nil {
+			return "", err
+		}
+		if err := persistCommand(db, cmd); err != nil {
+			return "", err
+		}
+		return resp, nil
 
 	case "PRINT":
 		return commands.Print(db, cmd)
@@ -38,7 +51,17 @@ func ExecuteCommand(db *data.Database, cmd commands.Command) (string, error) {
 	case "SELECT":
 		return commands.Select(db, cmd)
 
+	case "SAVE":
+		return commands.Save(db)
+
 	default:
 		return "", errors.New("unknown command")
 	}
+}
+
+func persistCommand(db *data.Database, cmd commands.Command) error {
+	if err := AppendAOF(cmd.ToString()); err != nil {
+		return err
+	}
+	return checkpointIfNeeded(db)
 }

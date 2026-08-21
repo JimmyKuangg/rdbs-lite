@@ -12,7 +12,19 @@ import (
 )
 
 func main() {
+	if err := data.Init(); err != nil {
+		log.Fatal(err)
+	}
+
 	db := data.NewDatabase()
+	if err := db.Load(); err != nil {
+		log.Fatalf("error loading database: %v", err)
+	}
+
+	if err := repl.Replay(&db); err != nil {
+		log.Fatalf("error replaying AOF file: %v", err)
+	}
+
 	reader := bufio.NewScanner(os.Stdin)
 
 	fmt.Println("RDBSLite started")

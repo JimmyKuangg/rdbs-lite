@@ -30,28 +30,20 @@ func ExecuteCommand(db *data.Database, cmd commands.Command) (string, error) {
 		if err != nil {
 			return "", err
 		}
-
-		cmdString := cmd.ToString()
-		err = AppendAOF(cmdString)
-		if err != nil {
+		if err := persistCommand(db, cmd); err != nil {
 			return "", err
 		}
-
-		return resp, err
+		return resp, nil
 
 	case "INSERT":
 		resp, err := commands.Insert(db, cmd)
 		if err != nil {
 			return "", err
 		}
-
-		cmdString := cmd.ToString()
-		err = AppendAOF(cmdString)
-		if err != nil {
+		if err := persistCommand(db, cmd); err != nil {
 			return "", err
 		}
-
-		return resp, err
+		return resp, nil
 
 	case "PRINT":
 		return commands.Print(db, cmd)
@@ -65,4 +57,11 @@ func ExecuteCommand(db *data.Database, cmd commands.Command) (string, error) {
 	default:
 		return "", errors.New("unknown command")
 	}
+}
+
+func persistCommand(db *data.Database, cmd commands.Command) error {
+	if err := AppendAOF(cmd.ToString()); err != nil {
+		return err
+	}
+	return checkpointIfNeeded(db)
 }

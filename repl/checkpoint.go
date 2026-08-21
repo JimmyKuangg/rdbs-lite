@@ -6,7 +6,7 @@ import (
 	"rdbslite/data"
 )
 
-const aofCheckpointThreshold = 4096
+const aofCheckpointThreshold = 256
 
 func checkpointIfNeeded(db *data.Database) error {
 	aofPath := data.AOFPath()
